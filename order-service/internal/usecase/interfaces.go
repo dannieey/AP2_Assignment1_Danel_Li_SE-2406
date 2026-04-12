@@ -7,6 +7,7 @@ type OrderRepository interface {
 	GetByID(id string) (*domain.Order, error)
 	Update(order *domain.Order) error
 	GetByIdempotencyKey(key string) (*domain.Order, error)
+	GetStats() (map[string]int64, error)
 }
 type PaymentClient interface {
 	CheckPayment(orderID string, amount int64) (string, error)

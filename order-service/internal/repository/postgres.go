@@ -32,3 +32,26 @@ func (r *orderRepo) GetByIdempotencyKey(key string) (*domain.Order, error) {
 	err := r.db.Where("idempotency_key = ?", key).First(&order).Error
 	return &order, err
 }
+
+func (r *orderRepo) GetStats() (map[string]int64, error) {
+	var results []struct {
+		Status string
+		Count  int64
+	}
+
+	err := r.db.Model(&domain.Order{}).
+		Select("status, count(*) as count").
+		Group("status").
+		Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	statsMap := make(map[string]int64)
+	for _, res := range results {
+		statsMap[res.Status] = res.Count
+	}
+
+	return statsMap, nil
+}

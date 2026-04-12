@@ -78,3 +78,25 @@ func (uc *OrderUseCase) GetOrder(id string) (*domain.Order, error) {
 	}
 	return order, nil
 }
+
+func (uc *OrderUseCase) GetStats() (map[string]int64, error) {
+	stats, err := uc.repo.GetStats()
+	if err != nil {
+		return nil, err
+	}
+
+	finalStats := map[string]int64{
+		"pending":   stats["Pending"],
+		"paid":      stats["Paid"],
+		"failed":    stats["Failed"],
+		"cancelled": stats["Cancelled"],
+	}
+
+	var total int64
+	for _, count := range finalStats {
+		total += count
+	}
+	finalStats["total"] = total
+
+	return finalStats, nil
+}

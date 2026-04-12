@@ -35,6 +35,8 @@ func main() {
 
 	r.PATCH("/orders/:id/cancel", handler.CancelOrder)
 
+	r.GET("/orders/stats", handler.GetStats)
+
 	log.Println("Order Service starting on :8080")
 	if err := r.Run(":8080"); err != nil {
 		log.Fatal("Failed to run server:", err)

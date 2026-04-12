@@ -64,3 +64,12 @@ func (h *OrderHandler) GetOrder(c *gin.Context) {
 
 	c.JSON(http.StatusOK, order)
 }
+
+func (h *OrderHandler) GetStats(c *gin.Context) {
+	stats, err := h.uc.GetStats()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get stats"})
+		return
+	}
+	c.JSON(http.StatusOK, stats)
+}
