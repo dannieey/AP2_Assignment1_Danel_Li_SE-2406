@@ -11,10 +11,18 @@ import (
 type OrderUseCase struct {
 	repo          OrderRepository
 	paymentClient PaymentClient
+	orderUpdates  chan *domain.Order
 }
 
 func NewOrderUseCase(r OrderRepository, pc PaymentClient) *OrderUseCase {
-	return &OrderUseCase{repo: r, paymentClient: pc}
+	return &OrderUseCase{
+		repo:          r,
+		paymentClient: pc,
+		orderUpdates:  make(chan *domain.Order, 10),
+	}
+}
+func (uc *OrderUseCase) GetUpdatesChannel() chan *domain.Order {
+	return uc.orderUpdates
 }
 
 func (uc *OrderUseCase) CreateOrder(itemName string, customerID string, amount int64, idempKey string) (*domain.Order, error) {
@@ -54,7 +62,15 @@ func (uc *OrderUseCase) CreateOrder(itemName string, customerID string, amount i
 	}
 
 	err = uc.repo.Update(order)
-	return order, err
+	if err != nil {
+		return nil, err
+	}
+
+	select {
+	case uc.orderUpdates <- order:
+	default:
+	}
+	return order, nil
 }
 
 func (uc *OrderUseCase) CancelOrder(orderID string) error {
@@ -68,7 +84,18 @@ func (uc *OrderUseCase) CancelOrder(orderID string) error {
 	}
 
 	order.Status = "Cancelled"
-	return uc.repo.Update(order)
+	err = uc.repo.Update(order)
+	if err != nil {
+		return err
+	}
+
+	// ДОБАВЬ ЭТО: Отправка в стрим при отмене
+	select {
+	case uc.orderUpdates <- order:
+	default:
+	}
+
+	return nil
 }
 
 func (uc *OrderUseCase) GetOrder(id string) (*domain.Order, error) {

@@ -23,9 +23,10 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 	}
 
 	var req struct {
-		CustomerID string `json:"customer_id" binding:"required"`
-		ItemName   string `json:"item_name" binding:"required"`
-		Amount     int64  `json:"amount" binding:"required"`
+		CustomerID     string `json:"customer_id" binding:"required"`
+		ItemName       string `json:"item_name" binding:"required"`
+		Amount         int64  `json:"amount" binding:"required"`
+		IdempotencyKey string `json:"idempotency_key" binding:"required"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -33,7 +34,7 @@ func (h *OrderHandler) CreateOrder(c *gin.Context) {
 		return
 	}
 
-	order, err := h.uc.CreateOrder(req.ItemName, req.CustomerID, req.Amount, idempKey)
+	order, err := h.uc.CreateOrder(req.ItemName, req.CustomerID, req.Amount, req.IdempotencyKey)
 	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{
 			"error": err.Error(),
