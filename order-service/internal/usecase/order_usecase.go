@@ -89,7 +89,6 @@ func (uc *OrderUseCase) CancelOrder(orderID string) error {
 		return err
 	}
 
-	// ДОБАВЬ ЭТО: Отправка в стрим при отмене
 	select {
 	case uc.orderUpdates <- order:
 	default:

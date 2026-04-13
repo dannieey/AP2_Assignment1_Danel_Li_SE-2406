@@ -35,15 +35,13 @@ func (h *OrderGRPCHandler) SubscribeToOrderUpdates(req *order.OrderSubscriptionR
 				return nil
 			}
 
-			// ГЛАВНОЕ ИСПРАВЛЕНИЕ:
-			// Если filterID пустой ("") ИЛИ совпадает с ID заказа — отправляем данные
 			if filterID == "" || updatedOrder.ID == filterID {
 				log.Printf("Streaming update to client for Order: %s (Status: %s)", updatedOrder.ID, updatedOrder.Status)
 
 				err := stream.Send(&order.OrderStatusUpdate{
 					OrderId:   updatedOrder.ID,
 					Status:    updatedOrder.Status,
-					UpdatedAt: timestamppb.New(updatedOrder.CreatedAt), // Используем время из БД
+					UpdatedAt: timestamppb.New(updatedOrder.CreatedAt),
 				})
 
 				if err != nil {
