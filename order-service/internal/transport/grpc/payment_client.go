@@ -14,7 +14,6 @@ type PaymentGRPCClient struct {
 }
 
 func NewPaymentGRPCClient(addr string) (*PaymentGRPCClient, error) {
-	// Устанавливаем соединение с Payment Service
 	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -29,13 +28,11 @@ func (c *PaymentGRPCClient) CheckPayment(orderID string, amount int64) (string, 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	// Формируем gRPC запрос
 	req := &payment.PaymentRequest{
 		OrderId: orderID,
-		Amount:  float64(amount), // Конвертируем для соответствия proto-файлу
+		Amount:  float64(amount),
 	}
 
-	// Вызываем удаленный метод ProcessPayment в другом сервисе
 	resp, err := c.client.ProcessPayment(ctx, req)
 	if err != nil {
 		return "", err

@@ -24,13 +24,13 @@ func (h *PaymentGRPCHandler) ProcessPayment(ctx context.Context, req *payment.Pa
 	if err != nil {
 		return &payment.PaymentResponse{
 			Status:    "FAILED",
-			CreatedAt: timestamppb.Now(), // Даже при ошибке лучше возвращать время
+			CreatedAt: timestamppb.Now(),
 		}, nil
 	}
 
 	return &payment.PaymentResponse{
 		TransactionId: p.TransactionID,
 		Status:        p.Status,
-		CreatedAt:     timestamppb.Now(), // ВЫПОЛНЕНИЕ КРИТЕРИЯ №4
+		CreatedAt:     timestamppb.Now(),
 	}, nil
 }

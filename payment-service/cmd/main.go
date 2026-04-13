@@ -8,7 +8,6 @@ import (
 	"payment-service/internal/repository"
 	"payment-service/internal/usecase"
 
-	// Правильные пути согласно твоей архитектуре (internal/transport/...)
 	grpcTransport "payment-service/internal/transport/grpc"
 	httpTransport "payment-service/internal/transport/http"
 
@@ -22,10 +21,8 @@ import (
 )
 
 func main() {
-	// 1. Загрузка .env
 	godotenv.Load()
 
-	// 2. Чтение конфига
 	dsn := os.Getenv("DATABASE_URL")
 	grpcPort := os.Getenv("GRPC_PORT")
 	httpPort := os.Getenv("HTTP_PORT")
@@ -40,7 +37,6 @@ func main() {
 	repo := repository.NewPaymentRepository(db)
 	uc := usecase.NewPaymentUseCase(repo)
 
-	// --- gRPC Server ---
 	go func() {
 		lis, err := net.Listen("tcp", ":"+grpcPort)
 		if err != nil {
@@ -48,15 +44,12 @@ func main() {
 		}
 
 		s := grpc.NewServer()
-		// Используем алиас grpcTransport
 		payment.RegisterPaymentServiceServer(s, grpcTransport.NewPaymentGRPCHandler(uc))
 
 		log.Printf("gRPC Payment Service starting on :%s", grpcPort)
 		s.Serve(lis)
 	}()
 
-	// --- HTTP Server (Gin) ---
-	// Используем алиас httpTransport
 	handler := httpTransport.NewPaymentHandler(uc)
 	r := gin.Default()
 

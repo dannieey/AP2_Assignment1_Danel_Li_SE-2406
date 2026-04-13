@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	// Подключаемся к нашему Order Service (порт 50051)
 	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
@@ -20,8 +19,6 @@ func main() {
 
 	client := order.NewOrderServiceClient(conn)
 
-	// Подписываемся на обновления (например, для заказа с ID "123")
-	// Если хочешь слушать всё, логику фильтрации можно убрать на сервере
 	req := &order.OrderSubscriptionRequest{OrderId: ""}
 
 	stream, err := client.SubscribeToOrderUpdates(context.Background(), req)

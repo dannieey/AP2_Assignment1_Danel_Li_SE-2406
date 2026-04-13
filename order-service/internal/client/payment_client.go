@@ -4,7 +4,6 @@ import (
 	"context"
 	"time"
 
-	// Убедись, что путь к сгенерированному пакету верный
 	payment "github.com/dannieey/assignment2-generated/payment"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -16,7 +15,6 @@ type PaymentGRPCClient struct {
 
 // NewPaymentGRPCClient создает новое gRPC соединение
 func NewPaymentGRPCClient(addr string) (*PaymentGRPCClient, error) {
-	// В новых версиях gRPC вместо Dial рекомендуется NewClient
 	conn, err := grpc.NewClient(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
@@ -27,18 +25,15 @@ func NewPaymentGRPCClient(addr string) (*PaymentGRPCClient, error) {
 	}, nil
 }
 
-// CheckPayment реализует твой интерфейс PaymentClient
 func (c *PaymentGRPCClient) CheckPayment(orderID string, amount int64) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	// Формируем gRPC запрос из прото-файла
 	req := &payment.PaymentRequest{
 		OrderId: orderID,
-		Amount:  float64(amount), // Приводим к float64, как в .proto
+		Amount:  float64(amount),
 	}
 
-	// Делаем вызов серверу Payment Service
 	resp, err := c.client.ProcessPayment(ctx, req)
 	if err != nil {
 		return "", err
